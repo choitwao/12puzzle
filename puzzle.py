@@ -48,7 +48,8 @@ if __name__ == '__main__':
             print('You can only select one of the heuristic functions.')
             os._exit(1)
         elif args.h1 is False and args.h2 is False:
-            heuristic_type = None
+            print('You must select one heuristic function.')
+            os._exit(1)
         else:
             heuristic_type = 'h1' if args.h1 else 'h2'
         # init solver with validated input
@@ -61,11 +62,6 @@ if __name__ == '__main__':
             # use BFS
             if args.subparser_name == 'BFS':
                 s.search_BFS(heuristic_type)
-                path = s.get_path()
-                for state in path:
-                    print('------------------')
-                    for row in state:
-                        print(str(row))
             # use A*
             if args.subparser_name == 'Astar':
                 print('A* Algorithm')

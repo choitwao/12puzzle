@@ -43,6 +43,12 @@ class Cli:
                                      action="store",
                                      help="Height of the puzzle",
                                      required=True)
+        template_parser.add_argument('-iteration',
+                                     dest='iteration',
+                                     metavar="int",
+                                     action="store",
+                                     help="Maximum iteration of a search",
+                                     required=False)
         # BFS command
         bfs_parser = method_parsers.add_parser('BFS',
                                                parents=[template_parser],
