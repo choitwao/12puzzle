@@ -67,7 +67,7 @@ class Solver:
             print('The puzzle is solved after ' + str(tic))
             print('Shortest path: ' + str(len(self.__path)) + ' steps.')
             print('Searched nodes: ' + str(self.__steps))
-            file_name = 'puzzleBFS' if heuristic_type is None else 'puzzleBFS-' + heuristic_type
+            file_name = 'puzzleBFS-h1' if heuristic_type is 'h1' else 'puzzleBFS-h2'
             self.__save_result__(file_name, tic)
 
     def search_Astar(self, heuristic_type=None, iteration=10000):
@@ -81,7 +81,7 @@ class Solver:
         # start searching
         while open_list.qsize() and self.__steps < iteration:
             self.__steps += 1
-            current_state = open_list.get()[1]
+            current_state = open_list.get()
             # skip closed state
             if str(current_state.get_state()) in close_list:
                 continue
@@ -97,17 +97,15 @@ class Solver:
                 break
             # search for children
             else:
-                new_state_list = []
                 for state in self.__find_possible_states__(current_state.get_state()):
                     if str(state) not in close_list:
                         new_state = State(state, self.__goal_state, current_state.get_depth() + 1, current_state)
-                        new_state_list.append(new_state)
-                if heuristic_type == 'h1':
-                    new_state_list = sorted(new_state_list, key=lambda x: x.get_h1())
-                else:
-                    new_state_list = sorted(new_state_list, key=lambda x: x.get_h2())
-                for state in new_state_list:
-                    open_list.put(state)
+                        if heuristic_type == 'h1':
+                            new_state.get_h1()
+                            open_list.put(new_state)
+                        else:
+                            new_state.get_h2()
+                            open_list.put(new_state)
         if open_list.qsize() and self.__steps >= iteration:
             print('This puzzle is unsolvable.')
         else:
@@ -115,7 +113,7 @@ class Solver:
             print('The puzzle is solved after ' + str(tic))
             print('Shortest path: ' + str(len(self.__path)) + ' steps.')
             print('Searched nodes: ' + str(self.__steps))
-            file_name = 'puzzleBFS' if heuristic_type is None else 'puzzleBFS-' + heuristic_type
+            file_name = 'puzzleAs-h1' if heuristic_type is 'h1' else 'puzzleAs-h2'
             self.__save_result__(file_name, tic)
 
     # This method is to find out all the possible moves based on the current state

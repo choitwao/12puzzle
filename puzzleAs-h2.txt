@@ -1,4 +1,4 @@
-puzzleBFS-h2
+puzzleAs-h2
 
 Initial State:
 [1, 2, 6, 4]
@@ -33,6 +33,6 @@ Puzzle solution path:
 [9, 10, 11, 0]
 --------------------
 
-The puzzle is solved after 0.07635260678797642
+The puzzle is solved after 0.0011715802510554158
 Shortest path: 5 steps.
-Searched nodes: 115.
+Searched nodes: 5.

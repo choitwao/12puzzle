@@ -66,7 +66,7 @@ class Cli:
                                 default=False,
                                 help="Enable Permutation Heuristic Function")
         # A* command
-        a_parser = method_parsers.add_parser('Astar',
+        a_parser = method_parsers.add_parser('ASTAR',
                                                parents=[template_parser],
                                                help='Run A* algorithm')
         a_parser.add_argument('-h1',

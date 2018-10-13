@@ -37,7 +37,7 @@ if __name__ == '__main__':
 
     args = Cli.create_parser().parse_args()
     print('\n\n-----------------------------------------------------------------------')
-
+    print(args)
     # use DFS
     if args.subparser_name == 'DFS':
         pass
@@ -63,8 +63,8 @@ if __name__ == '__main__':
             if args.subparser_name == 'BFS':
                 s.search_BFS(heuristic_type)
             # use A*
-            if args.subparser_name == 'Astar':
-                print('A* Algorithm')
+            if args.subparser_name == 'ASTAR':
+                s.search_Astar(heuristic_type)
 
 
 
