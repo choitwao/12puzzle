@@ -33,3 +33,6 @@ class State:
     def get_state(self):
         return self.__state
 
+    def get_depth(self):
+        return self.__depth
+
