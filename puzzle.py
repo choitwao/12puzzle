@@ -37,28 +37,27 @@ if __name__ == '__main__':
 
     args = Cli.create_parser().parse_args()
     print('\n\n-----------------------------------------------------------------------')
-    print(args)
-    # use DFS
-    if args.subparser_name == 'DFS':
-        pass
-    else:
-        # check if h1 and h2 are selected. Only one heuristic function can be selected.
-        heuristic_type = None
-        if args.h1 is True and args.h2 is True:
-            print('You can only select one of the heuristic functions.')
-            os._exit(1)
-        elif args.h1 is False and args.h2 is False:
-            print('You must select one heuristic function.')
-            os._exit(1)
+    # init solver with validated input
+    init_state = convert_state_to_int(args.init_state)
+    goal_state = convert_state_to_int(args.goal_state)
+    width = int(args.width)
+    height = int(args.height)
+    if validate_state(init_state, goal_state, width, height):
+        s = Solver(init_state, goal_state, width)
+        # use DFS
+        if args.subparser_name == 'DFS':
+            s.search_DFS()
         else:
-            heuristic_type = 'h1' if args.h1 else 'h2'
-        # init solver with validated input
-        init_state = convert_state_to_int(args.init_state)
-        goal_state = convert_state_to_int(args.goal_state)
-        width = int(args.width)
-        height = int(args.height)
-        if validate_state(init_state, goal_state, width, height):
-            s = Solver(init_state, goal_state, width)
+            # check if h1 and h2 are selected. Only one heuristic function can be selected.
+            heuristic_type = None
+            if args.h1 is True and args.h2 is True:
+                print('You can only select one of the heuristic functions.')
+                os._exit(1)
+            elif args.h1 is False and args.h2 is False:
+                print('You must select one heuristic function.')
+                os._exit(1)
+            else:
+                heuristic_type = 'h1' if args.h1 else 'h2'
             # use BFS
             if args.subparser_name == 'BFS':
                 s.search_BFS(heuristic_type)

@@ -22,6 +22,47 @@ class Solver:
         converted_state = [state[tile:tile+width] for tile in range(0, len(state), width)]
         return converted_state
 
+    def search_DFS(self, iteration=1000000):
+        print('\nStarting heuristic search using DFS......')
+        tic = time.clock()
+        depth = 0
+        open_list = []
+        close_list = []
+        init_state = State(self.__init_state, self.__goal_state, depth)
+        open_list.append(init_state)
+        # start searching
+        while len(open_list) > 0 and self.__steps < iteration:
+            self.__steps += 1
+            current_state = open_list.pop()
+            # skip closed state
+            if str(current_state.get_state()) in close_list:
+                continue
+            close_list.append(current_state.get_state())
+            # check if goal state is reached
+            if str(current_state.get_state()) == str(self.__goal_state):
+                while current_state.get_parent():
+                    self.__path.append(current_state.get_state())
+                    current_state = current_state.get_parent()
+                    tic = time.clock() - tic
+                self.__path.append(current_state.get_state())
+                self.__path.reverse()
+                break
+            # search for children
+            else:
+                for state in self.__find_possible_states__(current_state.get_state()):
+                    if str(state) not in close_list:
+                        new_state = State(state, self.__goal_state, current_state.get_depth() + 1, current_state)
+                        open_list.append(new_state)
+        if len(open_list) > 0 and self.__steps >= iteration:
+            print('This puzzle is unsolvable.')
+        else:
+            tic = time.clock() - tic
+            print('The puzzle is solved after ' + str(tic))
+            print('Shortest path: ' + str(len(self.__path)) + ' steps.')
+            print('Searched nodes: ' + str(self.__steps))
+            file_name = 'puzzleDFS'
+            self.__save_result__(file_name, tic)
+
     def search_BFS(self, heuristic_type=None, iteration=10000):
         print('\nStarting heuristic search using BFS......')
         tic = time.clock()
