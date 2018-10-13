@@ -7,15 +7,13 @@ from copy import deepcopy
 
 class State:
 
-    def __init__(self, state, goal_state, h1, h2, depth, parent = None):
+    def __init__(self, state, goal_state, depth, parent=None):
         self.__state = state
         self.__goal_state = goal_state
-        # h1: manhattan distance
-        self.__h1 = h1
-        # h2 = sum of permutation
-        self.__h2 = h2
         self.__depth = depth
         self.__parent = parent
+        self.__h1 = None
+        self.__h2 = None
 
     def __calculate_h1(self):
         pass
