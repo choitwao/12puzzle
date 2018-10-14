@@ -85,4 +85,10 @@ class Cli:
         dfs_parser = method_parsers.add_parser('DFS',
                                              parents=[template_parser],
                                              help='Run DFS')
+        dfs_parser.add_argument('-limit',
+                                     dest='limit',
+                                     metavar="int",
+                                     action="store",
+                                     help="depth limit for iterative deepening",
+                                     required=False)
         return command_parser

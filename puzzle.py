@@ -1,8 +1,13 @@
+# -*- coding:utf8 -*-
+"""
+puzzle.py is the driver of the project.
+"""
 from cli import Cli
 from solver import Solver
 import os
 
 
+# validation method to check if the user input make sense
 def validate_state(init_state, goal_state, width, height):
     print('Initial State: ' + str(init_state))
     print('Goal State: ' + str(goal_state))
@@ -24,6 +29,7 @@ def validate_state(init_state, goal_state, width, height):
     return validation == 2
 
 
+# convert the user input state from string to a list of int
 def convert_state_to_int(state):
     int_state = []
     for item in state.split(','):
@@ -33,6 +39,7 @@ def convert_state_to_int(state):
 
 if __name__ == '__main__':
 
+    # get user input from command line
     args = Cli.create_parser().parse_args()
     print('\n\n-----------------------------------------------------------------------')
     # init solver with validated input
@@ -40,11 +47,15 @@ if __name__ == '__main__':
     goal_state = convert_state_to_int(args.goal_state)
     width = int(args.width)
     height = int(args.height)
+    # validate user input
     if validate_state(init_state, goal_state, width, height):
         s = Solver(init_state, goal_state, width)
         # use DFS
         if args.subparser_name == 'DFS':
-            s.search_DFS()
+            if args.limit is None:
+                s.search_DFS()
+            else:
+                s.search_IDDFS(int(args.limit))
         else:
             # check if h1 and h2 are selected. Only one heuristic function can be selected.
             heuristic_type = None

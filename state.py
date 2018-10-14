@@ -1,3 +1,7 @@
+# -*- coding:utf8 -*-
+"""
+state.py is the model of puzzle state node
+"""
 import itertools
 
 
@@ -10,7 +14,7 @@ class State:
         self.__parent = parent
         self.__heuristic = 0
 
-    # hamming distance
+    # calculate and get the hamming distance of this node
     def get_h1(self):
         current_state = list(itertools.chain.from_iterable(self.__state))
         goal_state = list(itertools.chain.from_iterable(self.__goal_state))
@@ -20,7 +24,7 @@ class State:
         self.__heuristic += self.__depth
         return self.__heuristic
 
-    # sum of permutation
+    # calculate and get the sum of permutation of this node
     def get_h2(self):
         current_state = list(itertools.chain.from_iterable(self.__state))
         goal_state = list(itertools.chain.from_iterable(self.__goal_state))
@@ -40,6 +44,8 @@ class State:
 
     def get_depth(self):
         return self.__depth
+
+    # The following methods are for the priority queue to compare nodes
 
     def __lt__(self, other):
         return self.__heuristic < other.__heuristic

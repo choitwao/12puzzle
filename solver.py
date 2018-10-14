@@ -1,3 +1,7 @@
+# -*- coding:utf8 -*-
+"""
+solver.py contains all the implementation of heuristic search algorithms
+"""
 from queue import PriorityQueue, Queue
 from state import State
 import time
@@ -12,120 +16,188 @@ class Solver:
         self.__path = []
         self.__steps = 0
 
-    def get_path(self):
-        return self.__path
+    # Iterative Deepening Depth-First Search
+    # I use IDDFS as the default algorithm for DFS search since DFS doesn't yield good result.
+    # IDDFS is built on DFS
+    def search_IDDFS(self, limit):
+        current_limit = 0
+        # Iteratively increase the depth limit and run DFS
+        while current_limit < limit:
+            self.search_DFS(limit=current_limit)
+            current_limit += 1
+            if len(self.__path) > 0:
+                break
 
-    def get_steps(self):
-        return self.__steps
-
-    def search_DFS(self, iteration=10000):
+    # Depth-First Search
+    # `iteration` defined the maximum steps the DFS can go
+    # `limit` is set to None by default for pure DFS. Should set to INT for IDDFS.
+    def search_DFS(self, iteration=1000, limit=None):
         print('\nStarting heuristic search using DFS......')
         tic = time.clock()
+        # create open_list (stack) for storing non-explored nodes (node object)
         open_list = []
+        # plain_open_list is to save the puzzle only without any info about the tree (list)
+        # this gives constant complexity when checking if a new child is in open_list
         plain_open_list = []
+        # create close_list for storing explored nodes (list)
         close_list = []
+        # put initial state (node object) in the open_list and plain_open_list
         init_state = State(self.__init_state, self.__goal_state, 0)
         open_list.append(init_state)
+        plain_open_list.append(self.__init_state)
         # start searching
         while len(open_list) > 0 and self.__steps < iteration:
-            self.__steps += 1
             current_state = open_list.pop()
-            if current_state.get_state() in plain_open_list:
-                plain_open_list.remove(current_state.get_state())
+            plain_open_list.remove(current_state.get_state())
             # check if goal state is reached
             if current_state.get_state() == self.__goal_state:
                 self.__create_path__(current_state)
                 tic = time.clock() - tic
+                self.__steps += 1
                 break
+            # if reach the limit (for iterative deepening)
+            elif limit is not None and current_state.get_depth() + 1 > limit:
+                self.__steps += 1
+                continue
             # search for children
             else:
+                # find all the possible moves based on current state
                 for state in self.__find_possible_states__(current_state.get_state()):
+                    # check if this state is in open_list or close_list
                     if state not in close_list and state not in plain_open_list:
+                        # create state node, push to open_list
                         new_state = State(state, self.__goal_state, current_state.get_depth() + 1, current_state)
                         open_list.append(new_state)
                         plain_open_list.append(state)
+                # add the current state to close_list
                 close_list.append(current_state.get_state())
-        if len(open_list) > 0 and self.__steps >= iteration:
-            print('This puzzle is unsolvable.')
+                self.__steps += 1
+        # if no solution is found
+        if len(self.__path) == 0:
+            print('This puzzle is unsolvable.' if limit is None else 'This puzzle is unsolvable with depth limit ' + str(limit))
+        # if solution is found, print and save the result in a file
         else:
             self.__save_result__('puzzleDFS', tic)
 
+    # Breadth-First Search
+    # `heuristic_type` takes either `h1` or `h2`
+    # `h1` stands for hamming distance, and `h2` is the sum of permutation
+    # `iteration` is the maximum step of the search
     def search_BFS(self, heuristic_type=None, iteration=10000):
         print('\nStarting heuristic search using BFS......')
         tic = time.clock()
+        # create open_list (queue) for storing non-explored nodes (node object)
         open_list = Queue()
+        # plain_open_list is to save the puzzle only without any info about the tree (list)
+        # this gives constant complexity when checking if a new child is in open_list
         plain_open_list = []
+        # create close_list for storing explored nodes (list)
         close_list = []
+        # put initial state (node object) in the open_list and plain_open_list
         init_state = State(self.__init_state, self.__goal_state, 0)
         open_list.put(init_state)
+        plain_open_list.append(self.__init_state)
         # start searching
         while open_list.qsize() and self.__steps < iteration:
-            self.__steps += 1
             current_state = open_list.get()
-            if current_state.get_state() in plain_open_list:
-                plain_open_list.remove(current_state.get_state())
+            plain_open_list.remove(current_state.get_state())
             # check if goal state is reached
             if current_state.get_state() == self.__goal_state:
                 self.__create_path__(current_state)
                 tic = time.clock() - tic
+                self.__steps += 1
                 break
             # search for children
             else:
                 new_state_list = []
+                # find all the possible moves based on current state
                 for state in self.__find_possible_states__(current_state.get_state()):
+                    # check if this state is in open_list or close_list
                     if state not in close_list and state not in plain_open_list:
+                        # create state node, add to a temp list
                         new_state = State(state, self.__goal_state, current_state.get_depth() + 1, current_state)
                         new_state_list.append(new_state)
                         plain_open_list.append(state)
+                # if hamming distance, sort the temp list based on f(s) = g(s) + h1(s)
                 if heuristic_type == 'h1':
                     new_state_list = sorted(new_state_list, key=lambda x: x.get_h1())
+                # if sum of permutation, sort the temp list based on f(s) = g(s) + h2(s)
                 else:
                     new_state_list = sorted(new_state_list, key=lambda x: x.get_h2())
+                # add the state nodes in the temp list to open_list
                 for state in new_state_list:
                     open_list.put(state)
                 close_list.append(current_state.get_state())
-        if open_list.qsize() and self.__steps >= iteration:
+                self.__steps += 1
+        # if no solution is found
+        if len(self.__path) == 0:
             print('This puzzle is unsolvable.')
+        # if solution is found, print and save the result in a file
         else:
             self.__save_result__('puzzleBFS-h1' if heuristic_type is 'h1' else 'puzzleBFS-h2', tic)
 
+    # A* Algorithm Search
+    # `heuristic_type` takes either `h1` or `h2`
+    # `h1` stands for hamming distance, and `h2` is the sum of permutation
+    # `iteration` is the maximum step of the search
     def search_Astar(self, heuristic_type=None, iteration=10000):
         print('\nStarting heuristic search using A*......')
         tic = time.clock()
+        # create open_list (priority queue)for storing non-explored nodes (node object)
         open_list = PriorityQueue()
+        # plain_open_list is to save the puzzle only without any info about the tree (list)
+        # this gives constant complexity when checking if a new child is in open_list
         plain_open_list = []
+        # create close_list for storing explored nodes (list)
         close_list = []
+        # put initial state (node object) in the open_list and plain_open_list
         init_state = State(self.__init_state, self.__goal_state, 0)
         open_list.put(init_state)
+        plain_open_list.append(self.__init_state)
         # start searching
         while open_list.qsize() and self.__steps < iteration:
-            self.__steps += 1
             current_state = open_list.get()
-            if current_state.get_state() in plain_open_list:
-                plain_open_list.remove(current_state.get_state())
+            plain_open_list.remove(current_state.get_state())
             # check if goal state is reached
             if current_state.get_state() == self.__goal_state:
                 self.__create_path__(current_state)
                 tic = time.clock() - tic
+                self.__steps += 1
                 break
             # search for children
             else:
+                # find all the possible moves based on current state
                 for state in self.__find_possible_states__(current_state.get_state()):
+                    # check if this state is in open_list or close_list
                     if state not in close_list and state not in plain_open_list:
+                        # create state node
                         new_state = State(state, self.__goal_state, current_state.get_depth() + 1, current_state)
                         plain_open_list.append(state)
+                        # if hamming distance, set f(s) = g(s) + h1(s) as the priority of the node, add to open_list
                         if heuristic_type == 'h1':
                             new_state.get_h1()
                             open_list.put(new_state)
+                        # if sum of permutation, set f(s) = g(s) + h1(s) as the priority of the node, add to open_list
                         else:
                             new_state.get_h2()
                             open_list.put(new_state)
+                # add the current state to close_list
                 close_list.append(current_state.get_state())
-        if open_list.qsize() and self.__steps >= iteration:
+                self.__steps += 1
+        # if no solution is found
+        if len(self.__path) == 0:
             print('This puzzle is unsolvable.')
+        # if solution is found, print and save the result in a file
         else:
             self.__save_result__('puzzleAs-h1' if heuristic_type is 'h1' else 'puzzleAs-h2', tic)
 
+    # getter for path
+    def get_path(self):
+        return self.__path
+
+    # convert a list of puzzle to a new list of lists where the size equals to the height of the puzzle
+    # i.e [1,2,3,4,5,6,7,0] ->
+    # [[1,2,3,4],[5,6,7,0]] for 4x2
     def __convert_state__(self, state, width):
         converted_state = [state[tile:tile+width] for tile in range(0, len(state), width)]
         return converted_state
@@ -176,6 +248,7 @@ class Solver:
                 'position': [1, 1]
             }
         }
+        # generate states of possible moves
         for key, move in move_position.items():
             if move['exist']:
                 new_state = copy.deepcopy(state)
@@ -184,6 +257,7 @@ class Solver:
                 next_states.append(new_state)
         return next_states
 
+    # create the path of the solution
     def __create_path__(self, state):
         while state.get_parent():
             self.__path.append(state.get_state())
@@ -191,6 +265,7 @@ class Solver:
         self.__path.append(state.get_state())
         self.__path.reverse()
 
+    # print and save method
     def __save_result__(self, name, time):
         print('The puzzle is solved after ' + str(time))
         print('Shortest path: ' + str(len(self.__path)) + ' steps.')
