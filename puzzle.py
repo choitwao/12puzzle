@@ -18,8 +18,6 @@ def validate_state(init_state, goal_state, width, height):
     while number < int(height) * int(width):
         if number in init_state and number in goal_state:
             number += 1
-        else:
-            break
     if number == int(height) * int(width):
         validation += 1
         print('Tile number validation is good.')
@@ -64,7 +62,8 @@ if __name__ == '__main__':
             # use A*
             if args.subparser_name == 'ASTAR':
                 s.search_Astar(heuristic_type)
-
+    else:
+        print('Invalid puzzle configuration.')
 
 
 

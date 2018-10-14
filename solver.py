@@ -18,144 +18,88 @@ class Solver:
     def get_steps(self):
         return self.__steps
 
-    def __convert_state__(self, state, width):
-        converted_state = [state[tile:tile+width] for tile in range(0, len(state), width)]
-        return converted_state
-
-    def search_DFS(self, iteration=1000000):
-        print('\nStarting heuristic search using DFS......')
-        tic = time.clock()
-        depth = 0
-        open_list = []
-        close_list = []
-        init_state = State(self.__init_state, self.__goal_state, depth)
-        open_list.append(init_state)
-        # start searching
-        while len(open_list) > 0 and self.__steps < iteration:
-            self.__steps += 1
-            current_state = open_list.pop()
-            # skip closed state
-            if str(current_state.get_state()) in close_list:
-                continue
-            close_list.append(current_state.get_state())
-            # check if goal state is reached
-            if str(current_state.get_state()) == str(self.__goal_state):
-                while current_state.get_parent():
-                    self.__path.append(current_state.get_state())
-                    current_state = current_state.get_parent()
-                    tic = time.clock() - tic
-                self.__path.append(current_state.get_state())
-                self.__path.reverse()
-                break
-            # search for children
-            else:
-                for state in self.__find_possible_states__(current_state.get_state()):
-                    if str(state) not in close_list:
-                        new_state = State(state, self.__goal_state, current_state.get_depth() + 1, current_state)
-                        open_list.append(new_state)
-        if len(open_list) > 0 and self.__steps >= iteration:
-            print('This puzzle is unsolvable.')
-        else:
-            tic = time.clock() - tic
-            print('The puzzle is solved after ' + str(tic))
-            print('Shortest path: ' + str(len(self.__path)) + ' steps.')
-            print('Searched nodes: ' + str(self.__steps))
-            file_name = 'puzzleDFS'
-            self.__save_result__(file_name, tic)
+    def search_DFS(self, iteration=10000):
+        pass
 
     def search_BFS(self, heuristic_type=None, iteration=10000):
         print('\nStarting heuristic search using BFS......')
         tic = time.clock()
-        depth = 0
         open_list = Queue()
+        plain_open_list = []
         close_list = []
-        init_state = State(self.__init_state, self.__goal_state, depth)
+        init_state = State(self.__init_state, self.__goal_state, 0)
         open_list.put(init_state)
         # start searching
         while open_list.qsize() and self.__steps < iteration:
             self.__steps += 1
             current_state = open_list.get()
-            # skip closed state
-            if str(current_state.get_state()) in close_list:
-                continue
-            close_list.append(current_state.get_state())
+            if current_state.get_state() in plain_open_list:
+                plain_open_list.remove(current_state.get_state())
             # check if goal state is reached
-            if str(current_state.get_state()) == str(self.__goal_state):
-                while current_state.get_parent():
-                    self.__path.append(current_state.get_state())
-                    current_state = current_state.get_parent()
-                    tic = time.clock() - tic
-                self.__path.append(current_state.get_state())
-                self.__path.reverse()
+            if current_state.get_state() == self.__goal_state:
+                self.__create_path__(current_state)
+                tic = time.clock() - tic
                 break
             # search for children
             else:
                 new_state_list = []
                 for state in self.__find_possible_states__(current_state.get_state()):
-                    if str(state) not in close_list:
+                    if state not in close_list and state not in plain_open_list:
                         new_state = State(state, self.__goal_state, current_state.get_depth() + 1, current_state)
                         new_state_list.append(new_state)
+                        plain_open_list.append(state)
                 if heuristic_type == 'h1':
                     new_state_list = sorted(new_state_list, key=lambda x: x.get_h1())
                 else:
                     new_state_list = sorted(new_state_list, key=lambda x: x.get_h2())
                 for state in new_state_list:
                     open_list.put(state)
+                close_list.append(current_state.get_state())
         if open_list.qsize() and self.__steps >= iteration:
             print('This puzzle is unsolvable.')
         else:
-            tic = time.clock() - tic
-            print('The puzzle is solved after ' + str(tic))
-            print('Shortest path: ' + str(len(self.__path)) + ' steps.')
-            print('Searched nodes: ' + str(self.__steps))
-            file_name = 'puzzleBFS-h1' if heuristic_type is 'h1' else 'puzzleBFS-h2'
-            self.__save_result__(file_name, tic)
+            self.__save_result__('puzzleBFS-h1' if heuristic_type is 'h1' else 'puzzleBFS-h2', tic)
 
     def search_Astar(self, heuristic_type=None, iteration=10000):
         print('\nStarting heuristic search using A*......')
         tic = time.clock()
-        depth = 0
         open_list = PriorityQueue()
+        plain_open_list = []
         close_list = []
-        init_state = State(self.__init_state, self.__goal_state, depth)
+        init_state = State(self.__init_state, self.__goal_state, 0)
         open_list.put(init_state)
         # start searching
         while open_list.qsize() and self.__steps < iteration:
             self.__steps += 1
             current_state = open_list.get()
-            # skip closed state
-            if str(current_state.get_state()) in close_list:
-                continue
-            close_list.append(current_state.get_state())
+            if current_state.get_state() in plain_open_list:
+                plain_open_list.remove(current_state.get_state())
             # check if goal state is reached
-            if str(current_state.get_state()) == str(self.__goal_state):
-                while current_state.get_parent():
-                    self.__path.append(current_state.get_state())
-                    current_state = current_state.get_parent()
-                    tic = time.clock() - tic
-                self.__path.append(current_state.get_state())
-                self.__path.reverse()
+            if current_state.get_state() == self.__goal_state:
+                self.__create_path__(current_state)
+                tic = time.clock() - tic
                 break
             # search for children
             else:
                 for state in self.__find_possible_states__(current_state.get_state()):
-                    if str(state) not in close_list:
+                    if state not in close_list and state not in plain_open_list:
                         new_state = State(state, self.__goal_state, current_state.get_depth() + 1, current_state)
+                        plain_open_list.append(state)
                         if heuristic_type == 'h1':
                             new_state.get_h1()
                             open_list.put(new_state)
                         else:
                             new_state.get_h2()
                             open_list.put(new_state)
+                close_list.append(current_state.get_state())
         if open_list.qsize() and self.__steps >= iteration:
             print('This puzzle is unsolvable.')
         else:
-            tic = time.clock() - tic
-            print('The puzzle is solved after ' + str(tic))
-            print('Shortest path: ' + str(len(self.__path)) + ' steps.')
-            print('Searched nodes: ' + str(self.__steps))
-            file_name = 'puzzleAs-h1' if heuristic_type is 'h1' else 'puzzleAs-h2'
-            self.__save_result__(file_name, tic)
+            self.__save_result__('puzzleAs-h1' if heuristic_type is 'h1' else 'puzzleAs-h2', tic)
+
+    def __convert_state__(self, state, width):
+        converted_state = [state[tile:tile+width] for tile in range(0, len(state), width)]
+        return converted_state
 
     # This method is to find out all the possible moves based on the current state
     # Only returns the state without any info of the search (i.e. h1, h2, depth etc.)
@@ -224,7 +168,17 @@ class Solver:
             next_states.append(new_state)
         return next_states
 
+    def __create_path__(self, state):
+        while state.get_parent():
+            self.__path.append(state.get_state())
+            state = state.get_parent()
+        self.__path.append(state.get_state())
+        self.__path.reverse()
+
     def __save_result__(self, name, time):
+        print('The puzzle is solved after ' + str(time))
+        print('Shortest path: ' + str(len(self.__path)) + ' steps.')
+        print('Searched nodes: ' + str(self.__steps))
         with open(name + '.txt', 'w+') as file:
             file.write(name)
             file.write('\n\nInitial State:')
