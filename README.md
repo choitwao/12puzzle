@@ -1,5 +1,7 @@
 # Heuristic Solver for Sliding Puzzle
 
+[Github Repository Click Here](https://github.com/choitwao/sliding_puzzle_heuristic_solver)
+
 Implementation of some heuristic algorithms to solve sliding puzzle
 
 - supports (in theory) any A by B sliding puzzle.
@@ -59,5 +61,7 @@ Of course, you can always set the `iteration` for your BFS or A* search.
 
 The system will generate `puzzle{algorithm}-{heuristic_function}.txt` in your root directory and show all the stats of your search (the file is always overwritten).
 
+## TODO
 
+- Make the code prettier
 
