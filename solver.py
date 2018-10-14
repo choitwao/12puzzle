@@ -19,7 +19,36 @@ class Solver:
         return self.__steps
 
     def search_DFS(self, iteration=10000):
-        pass
+        print('\nStarting heuristic search using DFS......')
+        tic = time.clock()
+        open_list = []
+        plain_open_list = []
+        close_list = []
+        init_state = State(self.__init_state, self.__goal_state, 0)
+        open_list.append(init_state)
+        # start searching
+        while len(open_list) > 0 and self.__steps < iteration:
+            self.__steps += 1
+            current_state = open_list.pop()
+            if current_state.get_state() in plain_open_list:
+                plain_open_list.remove(current_state.get_state())
+            # check if goal state is reached
+            if current_state.get_state() == self.__goal_state:
+                self.__create_path__(current_state)
+                tic = time.clock() - tic
+                break
+            # search for children
+            else:
+                for state in self.__find_possible_states__(current_state.get_state()):
+                    if state not in close_list and state not in plain_open_list:
+                        new_state = State(state, self.__goal_state, current_state.get_depth() + 1, current_state)
+                        open_list.append(new_state)
+                        plain_open_list.append(state)
+                close_list.append(current_state.get_state())
+        if len(open_list) > 0 and self.__steps >= iteration:
+            print('This puzzle is unsolvable.')
+        else:
+            self.__save_result__('puzzleDFS', tic)
 
     def search_BFS(self, heuristic_type=None, iteration=10000):
         print('\nStarting heuristic search using BFS......')
