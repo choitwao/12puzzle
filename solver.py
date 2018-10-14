@@ -141,60 +141,47 @@ class Solver:
             if 0 in row:
                 blank_x = row_idx
                 blank_y = row.index(0)
-        # checking if moving down is possible (upper bound)
-        down = blank_x > 0
-        # checking if moving up is possible (lower bound)
-        up = blank_x < len(state) - 1
-        # checking if moving right is possible (left bound)
-        right = blank_y > 0
-        # checking if moving left is possible (right bound)
-        left = blank_y < len(state[0]) - 1
-        # check all the diagonal moves
-        down_left = down and left
-        down_right = down and right
-        up_left = up and left
-        up_right = up and right
-        # get all the possible states
-        if down is True:
-            new_state = copy.deepcopy(state)
-            new_state[blank_x][blank_y] = state[blank_x - 1][blank_y]
-            new_state[blank_x - 1][blank_y] = 0
-            next_states.append(new_state)
-        if up is True:
-            new_state = copy.deepcopy(state)
-            new_state[blank_x][blank_y] = state[blank_x + 1][blank_y]
-            new_state[blank_x + 1][blank_y] = 0
-            next_states.append(new_state)
-        if right is True:
-            new_state = copy.deepcopy(state)
-            new_state[blank_x][blank_y] = state[blank_x][blank_y - 1]
-            new_state[blank_x][blank_y - 1] = 0
-            next_states.append(new_state)
-        if left is True:
-            new_state = copy.deepcopy(state)
-            new_state[blank_x][blank_y] = state[blank_x][blank_y + 1]
-            new_state[blank_x][blank_y + 1] = 0
-            next_states.append(new_state)
-        if down_left is True:
-            new_state = copy.deepcopy(state)
-            new_state[blank_x][blank_y] = state[blank_x - 1][blank_y + 1]
-            new_state[blank_x - 1][blank_y + 1] = 0
-            next_states.append(new_state)
-        if down_right is True:
-            new_state = copy.deepcopy(state)
-            new_state[blank_x][blank_y] = state[blank_x - 1][blank_y - 1]
-            new_state[blank_x - 1][blank_y - 1] = 0
-            next_states.append(new_state)
-        if up_left is True:
-            new_state = copy.deepcopy(state)
-            new_state[blank_x][blank_y] = state[blank_x + 1][blank_y + 1]
-            new_state[blank_x + 1][blank_y + 1] = 0
-            next_states.append(new_state)
-        if up_right is True:
-            new_state = copy.deepcopy(state)
-            new_state[blank_x][blank_y] = state[blank_x + 1][blank_y - 1]
-            new_state[blank_x + 1][blank_y - 1] = 0
-            next_states.append(new_state)
+        # down, up, right, left, down_left, down_right, up_left, up_right object
+        move_position = {
+            'down': {
+                'exist': blank_x > 0,
+                'position': [-1, 0]
+            },
+            'up': {
+                'exist': blank_x < len(state) - 1,
+                'position': [1, 0]
+            },
+            'right': {
+                'exist': blank_y > 0,
+                'position': [0, -1]
+            },
+            'left': {
+                'exist': blank_y < len(state[0]) - 1,
+                'position': [0, 1]
+            },
+            'down_right': {
+                'exist': blank_x > 0 and blank_y > 0,
+                'position': [-1, -1]
+            },
+            'down_left': {
+                'exist': blank_x > 0 and blank_y < len(state[0]) - 1,
+                'position': [-1, 1]
+            },
+            'up_right': {
+                'exist': blank_x < len(state) - 1 and blank_y > 0,
+                'position': [1, -1]
+            },
+            'up_left': {
+                'exist': blank_x < len(state) - 1 and blank_y < len(state[0]) - 1,
+                'position': [1, 1]
+            }
+        }
+        for key, move in move_position.items():
+            if move['exist']:
+                new_state = copy.deepcopy(state)
+                new_state[blank_x][blank_y] = state[blank_x + move['position'][0]][blank_y + move['position'][1]]
+                new_state[blank_x + move['position'][0]][blank_y + move['position'][1]] = 0
+                next_states.append(new_state)
         return next_states
 
     def __create_path__(self, state):

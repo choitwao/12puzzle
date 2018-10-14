@@ -33,6 +33,6 @@ Puzzle solution path:
 [9, 10, 11, 0]
 --------------------
 
-The puzzle is solved after 0.017147621449533208
+The puzzle is solved after 0.02308091998711817
 Shortest path: 5 steps.
 Searched nodes: 85.
