@@ -21,7 +21,6 @@ class State:
         for tile in current_state:
             if tile != 0 and tile != goal_state[current_state.index(tile)]:
                 self.__heuristic += 1
-        self.__heuristic += self.__depth
         return self.__heuristic
 
     # calculate and get the sum of permutation of this node
@@ -33,7 +32,6 @@ class State:
                 for t in current_state[current_state.index(tile)+1:]:
                     if t != 0 and goal_state.index(t) < goal_state.index(tile):
                         self.__heuristic += 1
-        self.__heuristic += self.__depth
         return self.__heuristic
 
     def get_parent(self):

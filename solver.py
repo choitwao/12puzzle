@@ -19,11 +19,11 @@ class Solver:
     # Iterative Deepening Depth-First Search
     # I use IDDFS as the default algorithm for DFS search since DFS doesn't yield good result.
     # IDDFS is built on DFS
-    def search_IDDFS(self, limit):
+    def search_IDDFS(self, limit, iteration):
         current_limit = 0
         # Iteratively increase the depth limit and run DFS
         while current_limit < limit:
-            self.search_DFS(limit=current_limit)
+            self.search_DFS(limit=current_limit, iteration=iteration)
             current_limit += 1
             if len(self.__path) > 0:
                 break
@@ -31,7 +31,7 @@ class Solver:
     # Depth-First Search
     # `iteration` defined the maximum steps the DFS can go
     # `limit` is set to None by default for pure DFS. Should set to INT for IDDFS.
-    def search_DFS(self, iteration=1000, limit=None):
+    def search_DFS(self, iteration, limit=None):
         print('\nStarting heuristic search using DFS......')
         tic = time.clock()
         # create open_list (stack) for storing non-explored nodes (node object)
@@ -83,8 +83,8 @@ class Solver:
     # `heuristic_type` takes either `h1` or `h2`
     # `h1` stands for hamming distance, and `h2` is the sum of permutation
     # `iteration` is the maximum step of the search
-    def search_BFS(self, heuristic_type=None, iteration=10000):
-        print('\nStarting heuristic search using BFS......')
+    def search_BFS(self, heuristic_type, iteration):
+        print('\nStarting heuristic search using BFS with ' + heuristic_type + '......')
         tic = time.clock()
         # create open_list (queue) for storing non-explored nodes (node object)
         open_list = Queue()
@@ -140,7 +140,7 @@ class Solver:
     # `heuristic_type` takes either `h1` or `h2`
     # `h1` stands for hamming distance, and `h2` is the sum of permutation
     # `iteration` is the maximum step of the search
-    def search_Astar(self, heuristic_type=None, iteration=10000):
+    def search_Astar(self, heuristic_type, iteration):
         print('\nStarting heuristic search using A*......')
         tic = time.clock()
         # create open_list (priority queue)for storing non-explored nodes (node object)
@@ -213,43 +213,44 @@ class Solver:
             if 0 in row:
                 blank_x = row_idx
                 blank_y = row.index(0)
-        # down, up, right, left, down_left, down_right, up_left, up_right object
-        move_position = {
-            'down': {
-                'exist': blank_x > 0,
-                'position': [-1, 0]
-            },
-            'up': {
+        # UP > UP –RIGHT > RIGHT > DOWN- RIGHT > DOWN > DOWN –LEFT > LEFT > UP–LEFT
+        # (most preferred moves)  > (least preferred moves)
+        move_position = [
+            {
                 'exist': blank_x < len(state) - 1,
                 'position': [1, 0]
             },
-            'right': {
-                'exist': blank_y > 0,
-                'position': [0, -1]
-            },
-            'left': {
-                'exist': blank_y < len(state[0]) - 1,
-                'position': [0, 1]
-            },
-            'down_right': {
-                'exist': blank_x > 0 and blank_y > 0,
-                'position': [-1, -1]
-            },
-            'down_left': {
-                'exist': blank_x > 0 and blank_y < len(state[0]) - 1,
-                'position': [-1, 1]
-            },
-            'up_right': {
+            {
                 'exist': blank_x < len(state) - 1 and blank_y > 0,
                 'position': [1, -1]
             },
-            'up_left': {
+            {
+                'exist': blank_y > 0,
+                'position': [0, -1]
+            },
+            {
+                'exist': blank_x > 0 and blank_y > 0,
+                'position': [-1, -1]
+            },
+            {
+                'exist': blank_x > 0,
+                'position': [-1, 0]
+            },
+            {
+                'exist': blank_x > 0 and blank_y < len(state[0]) - 1,
+                'position': [-1, 1]
+            },
+            {
+                'exist': blank_y < len(state[0]) - 1,
+                'position': [0, 1]
+            },
+            {
                 'exist': blank_x < len(state) - 1 and blank_y < len(state[0]) - 1,
                 'position': [1, 1]
             }
-        }
+        ]
         # generate states of possible moves
-        for key, move in move_position.items():
+        for move in move_position:
             if move['exist']:
                 new_state = copy.deepcopy(state)
                 new_state[blank_x][blank_y] = state[blank_x + move['position'][0]][blank_y + move['position'][1]]
@@ -268,7 +269,7 @@ class Solver:
     # print and save method
     def __save_result__(self, name, time):
         print('The puzzle is solved after ' + str(time))
-        print('Shortest path: ' + str(len(self.__path)) + ' steps.')
+        print('Solution path: ' + str(len(self.__path)) + ' steps.')
         print('Searched nodes: ' + str(self.__steps))
         with open(name + '.txt', 'w+') as file:
             file.write(name)
