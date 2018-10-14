@@ -141,7 +141,7 @@ class Solver:
     # `h1` stands for hamming distance, and `h2` is the sum of permutation
     # `iteration` is the maximum step of the search
     def search_Astar(self, heuristic_type, iteration):
-        print('\nStarting heuristic search using A*......')
+        print('\nStarting heuristic search using A* with ' + heuristic_type + '......')
         tic = time.clock()
         # create open_list (priority queue)for storing non-explored nodes (node object)
         open_list = PriorityQueue()
