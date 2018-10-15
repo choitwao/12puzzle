@@ -61,7 +61,46 @@ Of course, you can always set the `iteration` for your BFS or A* search.
 
 The system will generate `puzzle{algorithm}-{heuristic_function}.txt` in your root directory and show all the stats of your search (the file is always overwritten).
 
-## TODO
+## Appendix A: All Test Commands
 
-- Make the code prettier
+```
+# solvable:
+
+## (4x3)
+
+python -m puzzle BFS -init 1,2,6,4,5,9,7,3,0,10,11,8 -goal 1,2,3,4,5,6,7,8,9,10,11,0 -width 4 -height 3 -h1
+
+python -m puzzle BFS -init 1,2,6,4,5,9,7,3,0,10,11,8 -goal 1,2,3,4,5,6,7,8,9,10,11,0 -width 4 -height 3 -h2
+
+python -m puzzle ASTAR -init 1,2,6,4,5,9,7,3,0,10,11,8 -goal 1,2,3,4,5,6,7,8,9,10,11,0 -width 4 -height 3 -h1
+
+python -m puzzle ASTAR -init 1,2,6,4,5,9,7,3,0,10,11,8 -goal 1,2,3,4,5,6,7,8,9,10,11,0 -width 4 -height 3 -h2
+
+python -m puzzle DFS -init 1,2,6,4,5,9,7,3,0,10,11,8 -goal 1,2,3,4,5,6,7,8,9,10,11,0 -width 4 -height 3 -limit 10
+
+## (3x2)
+
+python -m puzzle BFS -init 3,0,1,2,5,4 -goal 1,2,3,4,5,0 -width 3 -height 2 -h1
+
+python -m puzzle BFS -init 3,0,1,2,5,4 -goal 1,2,3,4,5,0 -width 3 -height 2 -h2
+
+python -m puzzle ASTAR -init 3,0,1,2,5,4 -goal 1,2,3,4,5,0 -width 3 -height 2 -h1
+
+python -m puzzle ASTAR -init 3,0,1,2,5,4 -goal 1,2,3,4,5,0 -width 3 -height 2 -h2
+
+python -m puzzle DFS -init 3,0,1,2,5,4 -goal 1,2,3,4,5,0 -width 3 -height 2 -limit 10
+
+# Unsolvable
+
+python -m puzzle ASTAR -init 11,1,2,3,6,5,12,4,10,14,9,7,0,13,8,15 -goal 1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,0 -width 4 -height 4 -h1
+
+python -m puzzle ASTAR -init 11,1,2,3,6,5,12,4,10,14,9,7,0,13,8,15 -goal 1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,0 -width 4 -height 4 -h2
+
+python -m puzzle BFS -init 11,1,2,3,6,5,12,4,10,14,9,7,0,13,8,15 -goal 1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,0 -width 4 -height 4 -h1
+
+python -m puzzle BFS -init 11,1,2,3,6,5,12,4,10,14,9,7,0,13,8,15 -goal 1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,0 -width 4 -height 4 -h2
+
+python -m puzzle DFS -init 11,1,2,3,6,5,12,4,10,14,9,7,0,13,8,15 -goal 1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,0 -width 4 -height 4 -limit 20
+```
+
 
