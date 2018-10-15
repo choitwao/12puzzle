@@ -144,7 +144,7 @@ class Solver:
         print('\nStarting heuristic search using A* with ' + heuristic_type + '......')
         tic = time.clock()
         # create open_list (priority queue)for storing non-explored nodes (node object)
-        open_list = PriorityQueue()
+        open_list = []
         # plain_open_list is to save the puzzle only without any info about the tree (list)
         # this gives constant complexity when checking if a new child is in open_list
         plain_open_list = []
@@ -152,12 +152,15 @@ class Solver:
         close_list = []
         # put initial state (node object) in the open_list and plain_open_list
         init_state = State(self.__init_state, self.__goal_state, 0)
-        open_list.put(init_state)
+        open_list.append(init_state)
         plain_open_list.append(self.__init_state)
         # start searching
-        while open_list.qsize() and self.__steps < iteration:
-            current_state = open_list.get()
-            plain_open_list.remove(current_state.get_state())
+        while len(open_list) and self.__steps < iteration:
+            # set the current state to the state has lowest f(n)
+            if heuristic_type == 'h1':
+                current_state = min(sorted(open_list, key=lambda x: x.get_h1() + x.get_g()))
+            else:
+                current_state = min(sorted(open_list, key=lambda x: x.get_h2() + x.get_g()))
             # check if goal state is reached
             if current_state.get_state() == self.__goal_state:
                 self.__create_path__(current_state)
@@ -168,21 +171,32 @@ class Solver:
             else:
                 # find all the possible moves based on current state
                 for state in self.__find_possible_states__(current_state.get_state()):
-                    # check if this state is in open_list or close_list
-                    if state not in close_list and state not in plain_open_list:
-                        # create state node
+                    # check if this state is in close_list
+                    if state in close_list:
+                        continue
+                    # if state exists in open_list, replace the old one with this one
+                    if state in plain_open_list:
+                        # create new f(n)
+                        new_evaluation = current_state.get_g() + 1
+                        # locate the existing node
+                        for idx, node in enumerate(open_list):
+                            if node.get_state() == state and node.get_g() > new_evaluation:
+                                print('here')
+                                open_list[idx].set_g(new_evaluation)
+                                open_list[idx].set_parent(current_state)
+                    else:
+                        # create new state node
                         new_state = State(state, self.__goal_state, current_state.get_depth() + 1, current_state)
+                        # set the node's f(n)
+                        new_state.set_g(current_state.get_g() + 1)
+                        # add to open list
+                        open_list.append(new_state)
                         plain_open_list.append(state)
-                        # if hamming distance, set f(s) = g(s) + h1(s) as the priority of the node, add to open_list
-                        if heuristic_type == 'h1':
-                            new_state.get_h1()
-                            open_list.put(new_state)
-                        # if sum of permutation, set f(s) = g(s) + h1(s) as the priority of the node, add to open_list
-                        else:
-                            new_state.get_h2()
-                            open_list.put(new_state)
                 # add the current state to close_list
                 close_list.append(current_state.get_state())
+                # remove the current state from open list
+                plain_open_list.remove(current_state.get_state())
+                open_list.remove(current_state)
                 self.__steps += 1
         # if no solution is found
         if len(self.__path) == 0:

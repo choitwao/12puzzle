@@ -13,6 +13,7 @@ class State:
         self.__depth = depth
         self.__parent = parent
         self.__heuristic = 0
+        self.__evaluation = 0
 
     # calculate and get the hamming distance of this node
     def get_h1(self):
@@ -34,8 +35,19 @@ class State:
                         self.__heuristic += 1
         return self.__heuristic
 
+    # get method for f(n)
+    def get_g(self):
+        return self.__evaluation
+
+    # set method for f(n)
+    def set_g(self, evaluation):
+        self.__evaluation = evaluation
+
     def get_parent(self):
         return self.__parent
+
+    def set_parent(self, state):
+        self.__parent = state
 
     def get_state(self):
         return self.__state

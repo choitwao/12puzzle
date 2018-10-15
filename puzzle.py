@@ -45,7 +45,8 @@ if __name__ == '__main__':
     goal_state = convert_state_to_int(args.goal_state)
     width = int(args.width)
     height = int(args.height)
-    iteration = 10000 if args.iteration is None else int(args.iteration)
+    # default maximum iteration at 1000
+    iteration = 1000 if args.iteration is None else int(args.iteration)
     # validate user input
     if validate_state(init_state, goal_state, width, height):
         s = Solver(init_state, goal_state, width)
